@@ -1,0 +1,15 @@
+{
+	"files.associations": {
+		"*.h": "cpp",
+		"array": "cpp"
+	},
+	"[cpp]": {
+		"editor.indentSize": "tabSize",
+		"editor.useTabStops": true,
+		"editor.detectIndentation": false,
+
+		"editor.wordBasedSuggestions": false,
+		"editor.suggest.insertMode": "replace",
+		"editor.semanticHighlighting.enabled": true
+	}
+}

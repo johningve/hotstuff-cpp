@@ -1,0 +1,19 @@
+add_library(hotstuff STATIC
+	blockchain.cpp
+	crypto.cpp
+)
+
+target_include_directories(hotstuff PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(hotstuff PRIVATE ${BOTAN_INCLUDE_DIR})
+target_link_libraries(hotstuff PRIVATE ${BOTAN_LIBRARY} cereal::cereal)
+
+add_executable(tests
+	crypto_test.cpp
+)
+
+include(Catch)
+
+catch_discover_tests(tests)
+
+target_include_directories(tests PRIVATE ${BOTAN_INCLUDE_DIR})
+target_link_libraries(tests PRIVATE hotstuff Catch2::Catch2WithMain ${BOTAN_LIBRARY} cereal::cereal)
