@@ -1,3 +1,7 @@
+#include <botan/sha2_32.h>
+#include <cereal/archives/binary.hpp>
+#include <sstream>
+
 #include "blockchain.h"
 
 namespace HotStuff
@@ -30,7 +34,19 @@ QuorumCert Block::cert()
 
 Hash Block::hash()
 {
-	return Hash();
+	Hash hash;
+	Botan::SHA_256 hasher;
+	std::stringstream buf;
+
+	{
+		cereal::BinaryOutputArchive oa(buf);
+		oa(*this);
+	}
+
+	auto hash_vec = hasher.process(buf.str());
+	std::copy_n(hash_vec.begin(), hash.max_size(), hash.begin());
+
+	return hash;
 }
 
 std::optional<Block> BlockChain::get(Hash hash)
