@@ -15,11 +15,11 @@ class Block
   public:
 	Block(Hash parent, Round round, ID proposer, QuorumCert cert);
 
-	Hash parent();
-	Round round();
-	ID proposer();
-	QuorumCert cert();
-	Hash hash();
+	Hash parent() const;
+	Round round() const;
+	ID proposer() const;
+	QuorumCert cert() const;
+	Hash hash() const;
 
   private:
 	friend class cereal::access;
@@ -35,13 +35,14 @@ class Block
 	}
 };
 
-static const Block genesis(Hash(), 0, 0, genesis_qc);
+const Block genesis(Hash(), 0, 0, genesis_qc);
 
 class BlockChain
 {
 	std::unordered_map<Hash, Block> blocks;
 
   public:
+	BlockChain();
 	std::optional<Block> get(Hash hash);
 	void add(Block block);
 };

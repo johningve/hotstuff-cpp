@@ -10,18 +10,11 @@ ID Signature::signer()
 	return this->m_signer;
 }
 
-bool Crypto::verify(const QuorumCert &qc)
+Signature::Signature()
 {
-	return true;
 }
 
-bool Crypto::verify(const Signature &sig, const std::vector<uint8_t> msg)
-{
-	auto verifier = new Botan::PK_Verifier(this->m_key, "ECDSA(SHA-256)");
-	return verifier->verify_message(msg, sig.m_signature);
-}
-
-Crypto::Crypto(Botan::ECDSA_PrivateKey key) : m_key(key)
+Signature::Signature(ID signer, std::vector<uint8_t> signature) : m_signer(signer), m_signature(signature)
 {
 }
 
@@ -55,6 +48,29 @@ std::vector<ID> QuorumCert::signers()
 	}
 
 	return signers;
+}
+
+Signature Crypto::sign(Hash msg_hash)
+{
+	auto signer = Botan::PK_Signer(this->m_key, Botan::system_rng(), "Raw");
+	auto signature_bytes = signer.sign_message(msg_hash.begin(), msg_hash.size(), Botan::system_rng());
+	return Signature(this->m_id, std::move(signature_bytes));
+}
+
+bool Crypto::verify(const QuorumCert &qc)
+{
+	return true;
+}
+
+bool Crypto::verify(const Signature &sig, Hash msg_hash)
+{
+	auto verifier = Botan::PK_Verifier(this->m_key, "Raw");
+	return verifier.verify_message(&msg_hash.front(), msg_hash.size(), &sig.m_signature.front(),
+	                               sig.m_signature.size());
+}
+
+Crypto::Crypto(ID id, Botan::ECDSA_PrivateKey key) : m_id(id), m_key(key)
+{
 }
 
 } // namespace HotStuff

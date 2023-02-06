@@ -8,6 +8,7 @@ target_include_directories(hotstuff PRIVATE ${BOTAN_INCLUDE_DIR})
 target_link_libraries(hotstuff PRIVATE ${BOTAN_LIBRARY} cereal::cereal)
 
 add_executable(tests
+	blockchain_test.cpp
 	crypto_test.cpp
 )
 

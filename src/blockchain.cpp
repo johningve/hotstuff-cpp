@@ -12,27 +12,27 @@ Block::Block(Hash parent, Round round, ID proposer, QuorumCert cert)
 {
 }
 
-Hash Block::parent()
+Hash Block::parent() const
 {
 	return m_parent;
 }
 
-Round Block::round()
+Round Block::round() const
 {
 	return m_round;
 }
 
-ID Block::proposer()
+ID Block::proposer() const
 {
 	return m_proposer;
 }
 
-QuorumCert Block::cert()
+QuorumCert Block::cert() const
 {
 	return m_cert;
 }
 
-Hash Block::hash()
+Hash Block::hash() const
 {
 	Hash hash;
 	Botan::SHA_256 hasher;
@@ -44,9 +44,14 @@ Hash Block::hash()
 	}
 
 	auto hash_vec = hasher.process(buf.str());
-	std::copy_n(hash_vec.begin(), hash.max_size(), hash.begin());
+	std::copy_n(hash_vec.begin(), hash.size(), hash.begin());
 
 	return hash;
+}
+
+BlockChain::BlockChain()
+{
+	blocks.insert({genesis.hash(), genesis});
 }
 
 std::optional<Block> BlockChain::get(Hash hash)
@@ -61,7 +66,7 @@ std::optional<Block> BlockChain::get(Hash hash)
 
 void BlockChain::add(Block block)
 {
-	blocks.insert(std::make_pair(block.hash(), block));
+	blocks.insert({block.hash(), block});
 }
 
 } // namespace HotStuff

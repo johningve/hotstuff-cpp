@@ -1,7 +1,22 @@
 {
 	"files.associations": {
 		"*.h": "cpp",
-		"array": "cpp"
+		"array": "cpp",
+		"*.tcc": "cpp",
+		"string": "cpp",
+		"unordered_map": "cpp",
+		"unordered_set": "cpp",
+		"vector": "cpp",
+		"functional": "cpp",
+		"memory": "cpp",
+		"optional": "cpp",
+		"string_view": "cpp",
+		"system_error": "cpp",
+		"typeindex": "cpp",
+		"variant": "cpp",
+		"compare": "cpp",
+		"limits": "cpp",
+		"ratio": "cpp"
 	},
 	"[cpp]": {
 		"editor.indentSize": "tabSize",

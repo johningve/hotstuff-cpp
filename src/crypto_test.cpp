@@ -1,12 +1,28 @@
+#include <botan/ecdsa.h>
 #include <catch2/catch_test_macros.hpp>
 #include <cereal/archives/binary.hpp>
 #include <sstream>
 
+#include "blockchain.h"
 #include "crypto.h"
 
 using namespace HotStuff;
 
-TEST_CASE("Serialize/Deserialize QuorumCert")
+Botan::ECDSA_PrivateKey gen_key()
+{
+	Botan::ECDSA_PrivateKey key(Botan::system_rng(), Botan::EC_Group("secp256k1"));
+	return key;
+}
+
+TEST_CASE("Create and verify Signature", "[crypto]")
+{
+	Crypto crypto(1, gen_key());
+	auto signature = crypto.sign(genesis.hash());
+
+	REQUIRE(crypto.verify(signature, genesis.hash()));
+}
+
+TEST_CASE("Serialize/Deserialize QuorumCert", "[crypto]")
 {
 	std::stringstream ss;
 

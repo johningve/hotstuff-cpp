@@ -6,6 +6,8 @@
 #include <cereal/types/array.hpp>
 #include <cereal/types/vector.hpp>
 
+#include "util/array_hasher.h" // specialization needed to allow Hash to be usable in unordered_map
+
 #include "types.h"
 
 namespace HotStuff
@@ -20,12 +22,16 @@ class Signature
   public:
 	ID signer();
 
+	Signature();
+
   private:
 	friend class Crypto;
 	friend class cereal::access;
 
 	std::vector<uint8_t> m_signature;
 	ID m_signer;
+
+	Signature(ID signer, std::vector<uint8_t> signature);
 
 	template <class Archive> void serialize(Archive &archive)
 	{
@@ -58,29 +64,18 @@ class QuorumCert
 	}
 };
 
-static const QuorumCert genesis_qc = QuorumCert(Hash(), Round(), std::vector<Signature>());
+const QuorumCert genesis_qc = QuorumCert(Hash(), Round(), std::vector<Signature>());
 
 class Crypto
 {
+	ID m_id;
 	Botan::ECDSA_PrivateKey m_key;
 
   public:
-	Crypto(Botan::ECDSA_PrivateKey key);
+	Crypto(ID id, Botan::ECDSA_PrivateKey key);
 
+	Signature sign(Hash msg_hash);
 	bool verify(const QuorumCert &qc);
-	bool verify(const Signature &sig, const std::vector<uint8_t> msg);
+	bool verify(const Signature &sig, Hash msg_hash);
 };
 } // namespace HotStuff
-
-#include "util/array_hasher.h" // specialization needed to allow Hash to be usable in unordered_map
-
-namespace std
-{
-template <> struct hash<HotStuff::Hash>
-{
-	size_t operator()(const HotStuff::Hash &a) const noexcept
-	{
-		return hash<array<uint8_t, 32>>{}(reinterpret_cast<const array<uint8_t, 32> &>(a));
-	}
-};
-} // namespace std
