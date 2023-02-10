@@ -16,7 +16,11 @@
 		"variant": "cpp",
 		"compare": "cpp",
 		"limits": "cpp",
-		"ratio": "cpp"
+		"ratio": "cpp",
+		"memory_resource": "cpp",
+		"istream": "cpp",
+		"sstream": "cpp",
+		"thread": "cpp"
 	},
 	"[cpp]": {
 		"editor.indentSize": "tabSize",

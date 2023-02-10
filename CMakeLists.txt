@@ -25,6 +25,8 @@ find_library(BOTAN_LIBRARY botan-2 REQUIRED)
     # this is heuristically generated, and may not be correct
 find_package(cereal CONFIG REQUIRED)
 find_package(Catch2 CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
 
 # catch2 provides CMake targets:
 

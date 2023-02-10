@@ -12,7 +12,7 @@ Block::Block(Hash parent, Round round, ID proposer, QuorumCert cert)
 {
 }
 
-Hash Block::parent() const
+Hash Block::parent_hash() const
 {
 	return m_parent;
 }
@@ -56,12 +56,12 @@ BlockChain::BlockChain()
 
 std::optional<Block> BlockChain::get(Hash hash)
 {
-	auto block = blocks.find(hash);
-	if (block == blocks.end())
+	auto block_entry = blocks.find(hash);
+	if (block_entry == blocks.end())
 	{
 		return std::nullopt;
 	}
-	return block->second;
+	return block_entry->second;
 }
 
 void BlockChain::add(Block block)

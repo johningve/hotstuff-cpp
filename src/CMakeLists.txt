@@ -1,11 +1,13 @@
 add_library(hotstuff STATIC
 	blockchain.cpp
+	consensus.cpp
 	crypto.cpp
+	peers.cpp
 )
 
 target_include_directories(hotstuff PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 target_include_directories(hotstuff PRIVATE ${BOTAN_INCLUDE_DIR})
-target_link_libraries(hotstuff PRIVATE ${BOTAN_LIBRARY} cereal::cereal)
+target_link_libraries(hotstuff PRIVATE ${BOTAN_LIBRARY} cereal::cereal fmt::fmt spdlog::spdlog)
 
 add_executable(tests
 	blockchain_test.cpp

@@ -16,10 +16,11 @@ Botan::ECDSA_PrivateKey gen_key()
 
 TEST_CASE("Create and verify Signature", "[crypto]")
 {
-	Crypto crypto(1, gen_key());
+	Peers peers;
+	Crypto crypto(1, gen_key(), peers);
 	auto signature = crypto.sign(genesis.hash());
 
-	REQUIRE(crypto.verify(signature, genesis.hash()));
+	REQUIRE(crypto.verify(signature, genesis.hash()).ok());
 }
 
 TEST_CASE("Serialize/Deserialize QuorumCert", "[crypto]")

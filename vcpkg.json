@@ -6,6 +6,8 @@
 		"asio",
 		"botan",
 		"catch2",
-		"cereal"
+		"cereal",
+		"fmt",
+		"spdlog"
 	]
 }

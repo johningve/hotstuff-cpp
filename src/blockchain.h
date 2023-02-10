@@ -15,7 +15,7 @@ class Block
   public:
 	Block(Hash parent, Round round, ID proposer, QuorumCert cert);
 
-	Hash parent() const;
+	Hash parent_hash() const;
 	Round round() const;
 	ID proposer() const;
 	QuorumCert cert() const;
