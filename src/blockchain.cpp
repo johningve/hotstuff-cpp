@@ -7,6 +7,10 @@
 namespace HotStuff
 {
 
+Block::Block()
+{
+}
+
 Block::Block(Hash parent, Round round, ID proposer, QuorumCert cert, std::vector<uint8_t> payload)
     : m_parent(parent), m_round(round), m_proposer(proposer), m_cert(cert), m_payload(payload)
 {

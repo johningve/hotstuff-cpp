@@ -23,8 +23,9 @@ TEST_CASE("Serialize/Deserialize Block", "[serialization]")
 	auto [peers, keys] = make_peers();
 	auto qc = make_qc(peers, keys);
 	auto genesis_hash = GENESIS.hash();
+
 	Block block1(genesis_hash, 1, 1, qc, {genesis_hash.begin(), genesis_hash.end()});
-	Block block2 = GENESIS;
+	Block block2;
 
 	std::stringstream ss;
 

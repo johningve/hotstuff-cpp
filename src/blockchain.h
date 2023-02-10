@@ -13,6 +13,9 @@ namespace HotStuff
 class Block
 {
   public:
+	// Returns an empty Block.
+	// You probably shouldn't use this unless you need it for deserialization.
+	Block();
 	Block(Hash parent, Round round, ID proposer, QuorumCert cert, std::vector<uint8_t> payload = {});
 
 	Hash parent_hash() const;

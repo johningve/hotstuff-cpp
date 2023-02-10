@@ -47,12 +47,15 @@ class Signature
 class QuorumCert
 {
   public:
+	// Returns an empty QuorumCert.
+	// You probably shouldn't use this unless you need it for deserialization.
+	QuorumCert();
+	QuorumCert(const QuorumCert &other);
+	QuorumCert(Hash block, Round round, std::vector<Signature> signatures);
+
 	Hash block_hash() const;
 	Round round() const;
 	std::vector<ID> signers() const;
-
-	QuorumCert(Hash block, Round round, std::vector<Signature> signatures);
-	QuorumCert(const QuorumCert &other);
 
   private:
 	friend class Crypto;
@@ -71,10 +74,13 @@ class QuorumCert
 class TimeoutCert
 {
   public:
-	Round round();
-
+	// Returns an empty TimeoutCert.
+	// You probably shouldn't use this unless you need it for deserialization.
+	TimeoutCert();
 	TimeoutCert(Round round, std::vector<Signature> signatures);
 	TimeoutCert(const TimeoutCert &other);
+
+	Round round() const;
 
   private:
 	friend class Crypto;

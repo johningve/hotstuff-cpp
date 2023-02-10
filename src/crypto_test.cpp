@@ -56,7 +56,7 @@ TEST_CASE("Serialize/Deserialize QuorumCert", "[crypto,serialization]")
 	auto [peers, keys] = make_peers();
 	std::vector<ID> signers = {2, 3, 4};
 
-	QuorumCert qc = GENESIS_QC;
+	QuorumCert qc;
 
 	{
 		QuorumCert qc = make_qc(peers, keys, signers, GENESIS.hash(), 1);

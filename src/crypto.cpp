@@ -19,6 +19,20 @@ Signature::Signature(ID signer, std::vector<uint8_t> signature) : m_signer(signe
 {
 }
 
+QuorumCert::QuorumCert()
+{
+}
+
+QuorumCert::QuorumCert(const QuorumCert &other)
+    : m_block(other.m_block), m_round(other.m_round), m_signatures(other.m_signatures)
+{
+}
+
+QuorumCert::QuorumCert(Hash block, Round round, std::vector<Signature> signatures)
+    : m_block(block), m_round(round), m_signatures(signatures)
+{
+}
+
 Hash QuorumCert::block_hash() const
 {
 	return m_block;
@@ -27,16 +41,6 @@ Hash QuorumCert::block_hash() const
 Round QuorumCert::round() const
 {
 	return m_round;
-}
-
-QuorumCert::QuorumCert(Hash block, Round round, std::vector<Signature> signatures)
-    : m_block(block), m_round(round), m_signatures(signatures)
-{
-}
-
-QuorumCert::QuorumCert(const QuorumCert &other) : m_block(other.m_block), m_round(other.m_round)
-{
-	this->m_signatures = std::vector<Signature>(other.m_signatures);
 }
 
 std::vector<ID> QuorumCert::signers() const
@@ -51,18 +55,21 @@ std::vector<ID> QuorumCert::signers() const
 	return signers;
 }
 
-Round TimeoutCert::round()
+TimeoutCert::TimeoutCert()
 {
-	return m_round;
 }
 
 TimeoutCert::TimeoutCert(Round round, std::vector<Signature> signatures) : m_round(round), m_signatures(signatures)
 {
 }
 
-TimeoutCert::TimeoutCert(const TimeoutCert &other) : m_round(other.m_round)
+TimeoutCert::TimeoutCert(const TimeoutCert &other) : m_round(other.m_round), m_signatures(other.m_signatures)
 {
-	this->m_signatures = std::vector<Signature>(other.m_signatures);
+}
+
+Round TimeoutCert::round() const
+{
+	return m_round;
 }
 
 std::vector<ID> TimeoutCert::signers()
