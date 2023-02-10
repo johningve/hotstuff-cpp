@@ -16,7 +16,7 @@ Botan::ECDSA_PublicKey Peer::public_key()
 	return m_key;
 }
 
-std::optional<Peer> Peers::find(ID id)
+std::optional<Peer> Peers::find(ID id) const
 {
 	auto peer_entry = m_peers.find(id);
 	if (peer_entry == m_peers.end())

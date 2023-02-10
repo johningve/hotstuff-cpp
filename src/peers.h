@@ -25,7 +25,7 @@ class Peer
 class Peers
 {
   public:
-	std::optional<Peer> find(ID id);
+	std::optional<Peer> find(ID id) const;
 	void add(Peer peer);
 
   private:

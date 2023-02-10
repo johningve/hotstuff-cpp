@@ -51,7 +51,7 @@ Hash Block::hash() const
 
 BlockChain::BlockChain()
 {
-	blocks.insert({genesis.hash(), genesis});
+	blocks.insert({GENESIS.hash(), GENESIS});
 }
 
 std::optional<Block> BlockChain::get(Hash hash)

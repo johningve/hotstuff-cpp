@@ -8,9 +8,9 @@ TEST_CASE("Get Genesis", "[blockchain]")
 {
 	BlockChain bc;
 
-	auto block = bc.get(genesis.hash());
+	auto block = bc.get(GENESIS.hash());
 
 	REQUIRE(block.has_value());
 
-	REQUIRE(block.value().hash() == genesis.hash());
+	REQUIRE(block.value().hash() == GENESIS.hash());
 }

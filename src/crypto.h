@@ -23,7 +23,11 @@ class Signature
   public:
 	ID signer() const;
 
-	Signature();
+	// This public constructor is needed because we want to serialize QuorumCert,
+	// which has a vector of signatures. Cereal uses vector::resize, which needs
+	// to be able to construct new objects. This should be removed.
+	// see: https://github.com/USCiLab/cereal/issues/704
+	[[deprecated]] Signature();
 
   private:
 	friend class Crypto;
@@ -43,8 +47,9 @@ class Signature
 class QuorumCert
 {
   public:
-	Hash block_hash();
-	Round round();
+	Hash block_hash() const;
+	Round round() const;
+	std::vector<ID> signers() const;
 
 	QuorumCert(Hash block, Round round, std::vector<Signature> signatures);
 	QuorumCert(const QuorumCert &other);
@@ -56,8 +61,6 @@ class QuorumCert
 	std::vector<Signature> m_signatures;
 	Hash m_block;
 	Round m_round;
-
-	std::vector<ID> signers();
 
 	template <class Archive> void serialize(Archive &archive)
 	{
@@ -88,18 +91,17 @@ class TimeoutCert
 	}
 };
 
-const QuorumCert genesis_qc = QuorumCert(Hash(), Round(), std::vector<Signature>());
+const QuorumCert GENESIS_QC = QuorumCert(Hash(), Round(), std::vector<Signature>());
 
 class Crypto
 {
-
   public:
 	class VerifyResult;
 
-	Crypto(ID id, Botan::ECDSA_PrivateKey key, Peers m_peers);
+	Crypto(ID id, Botan::ECDSA_PrivateKey key, std::shared_ptr<Peers> m_peers);
 
 	Signature sign(Hash msg_hash);
-	VerifyResult verify(const QuorumCert &qc);
+	VerifyResult verify(const QuorumCert &qc, int quorum_size);
 	VerifyResult verify(const Signature &sig, Hash msg_hash);
 
 	class VerifyResult
@@ -109,7 +111,8 @@ class Crypto
 		{
 			OK,
 			PEER_NOT_FOUND,
-			INVALID_SIGNATURE
+			INVALID_SIGNATURE,
+			NOT_A_QUORUM,
 		};
 
 		Kind kind();
@@ -129,6 +132,7 @@ class Crypto
   private:
 	ID m_id;
 	Botan::ECDSA_PrivateKey m_key;
-	Peers m_peers;
+	std::shared_ptr<Peers> m_peers;
 };
+
 } // namespace HotStuff

@@ -27,7 +27,7 @@ ID LeaderElection::get_leader(Round round)
 
 void Consensus::on_propose(Block block)
 {
-	if (auto result = m_crypto.verify(block.cert()))
+	if (auto result = m_crypto.verify(block.cert(), 3))
 	{
 		std::cerr << "on_propose: Invalid quorum cert." << std::endl;
 		return;
@@ -41,23 +41,21 @@ void Consensus::on_propose(Block block)
 
 	bool safe = false;
 
-	auto opt_block_from_qc = m_blockchain.get(block.cert().block_hash());
-	if (opt_block_from_qc.has_value())
+	auto block_from_qc = m_blockchain.get(block.cert().block_hash());
+	if (block_from_qc)
 	{
-		auto block_from_qc = opt_block_from_qc.value();
-		if (block_from_qc.round() > m_locked.round())
+		if (block_from_qc->round() > m_locked.round())
 		{
 			safe = true;
 		}
 	}
 	else
 	{
-		auto opt_ancestor = m_blockchain.get(block.parent_hash());
-		for (; opt_ancestor.has_value() && opt_ancestor.value().round() > m_locked.round();
-		     opt_ancestor = m_blockchain.get(opt_ancestor.value().parent_hash()))
+		auto ancestor = m_blockchain.get(block.parent_hash());
+		for (; ancestor && ancestor->round() > m_locked.round(); ancestor = m_blockchain.get(ancestor->parent_hash()))
 			;
 
-		safe = opt_ancestor.has_value() && opt_ancestor.value().hash() == m_locked.hash();
+		safe = ancestor && ancestor->hash() == m_locked.hash();
 	}
 
 	if (!safe)

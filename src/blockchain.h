@@ -35,7 +35,7 @@ class Block
 	}
 };
 
-const Block genesis(Hash(), 0, 0, genesis_qc);
+const Block GENESIS(Hash(), 0, 0, GENESIS_QC);
 
 class BlockChain
 {

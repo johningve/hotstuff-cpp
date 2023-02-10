@@ -19,12 +19,12 @@ Signature::Signature(ID signer, std::vector<uint8_t> signature) : m_signer(signe
 {
 }
 
-Hash QuorumCert::block_hash()
+Hash QuorumCert::block_hash() const
 {
 	return m_block;
 }
 
-Round QuorumCert::round()
+Round QuorumCert::round() const
 {
 	return m_round;
 }
@@ -39,7 +39,7 @@ QuorumCert::QuorumCert(const QuorumCert &other) : m_block(other.m_block), m_roun
 	this->m_signatures = std::vector<Signature>(other.m_signatures);
 }
 
-std::vector<ID> QuorumCert::signers()
+std::vector<ID> QuorumCert::signers() const
 {
 	std::vector<ID> signers;
 
@@ -84,14 +84,30 @@ Signature Crypto::sign(Hash msg_hash)
 	return Signature(this->m_id, std::move(signature_bytes));
 }
 
-Crypto::VerifyResult Crypto::verify(const QuorumCert &qc)
+Crypto::VerifyResult Crypto::verify(const QuorumCert &qc, int quorum_size)
 {
-	return VerifyResult(VerifyResult::OK);
+	int num_ok = 0;
+	for (auto sig : qc.m_signatures)
+	{
+		if (!verify(sig, qc.block_hash()))
+		{
+			continue;
+		}
+
+		num_ok++;
+		if (num_ok >= quorum_size)
+		{
+			return VerifyResult(VerifyResult::OK);
+		}
+	}
+
+	return VerifyResult(VerifyResult::NOT_A_QUORUM,
+	                    fmt::format("got only {} of {} required signatures", num_ok, quorum_size));
 }
 
 Crypto::VerifyResult Crypto::verify(const Signature &sig, Hash msg_hash)
 {
-	auto peer = m_peers.find(sig.signer());
+	auto peer = m_peers->find(sig.signer());
 	if (!peer)
 	{
 		return VerifyResult(VerifyResult::PEER_NOT_FOUND, fmt::format("Peer with id '{}' not found.", sig.signer()));
@@ -106,7 +122,7 @@ Crypto::VerifyResult Crypto::verify(const Signature &sig, Hash msg_hash)
 	return VerifyResult(VerifyResult::INVALID_SIGNATURE);
 }
 
-Crypto::Crypto(ID id, Botan::ECDSA_PrivateKey key, Peers peers) : m_id(id), m_key(key), m_peers(peers)
+Crypto::Crypto(ID id, Botan::ECDSA_PrivateKey key, std::shared_ptr<Peers> peers) : m_id(id), m_key(key), m_peers(peers)
 {
 }
 
