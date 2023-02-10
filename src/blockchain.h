@@ -13,13 +13,14 @@ namespace HotStuff
 class Block
 {
   public:
-	Block(Hash parent, Round round, ID proposer, QuorumCert cert);
+	Block(Hash parent, Round round, ID proposer, QuorumCert cert, std::vector<uint8_t> payload = {});
 
 	Hash parent_hash() const;
 	Round round() const;
 	ID proposer() const;
 	QuorumCert cert() const;
 	Hash hash() const;
+	std::vector<uint8_t> payload() const;
 
   private:
 	friend class cereal::access;
@@ -28,6 +29,7 @@ class Block
 	Round m_round;
 	ID m_proposer;
 	QuorumCert m_cert;
+	std::vector<uint8_t> m_payload;
 
 	template <class Archive> void serialize(Archive &archive)
 	{

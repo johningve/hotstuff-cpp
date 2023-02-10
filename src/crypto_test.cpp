@@ -5,47 +5,9 @@
 
 #include "blockchain.h"
 #include "crypto.h"
+#include "tests/util.h"
 
 using namespace HotStuff;
-
-Botan::ECDSA_PrivateKey gen_key()
-{
-	Botan::ECDSA_PrivateKey key(Botan::system_rng(), Botan::EC_Group("secp256k1"));
-	return key;
-}
-
-std::pair<std::shared_ptr<Peers>, std::unordered_map<ID, Botan::ECDSA_PrivateKey>> make_peers(int num_peers = 4,
-                                                                                              ID first_id = 1)
-{
-	std::unordered_map<ID, Botan::ECDSA_PrivateKey> keys;
-	auto peers = std::make_shared<Peers>();
-
-	for (ID i = first_id; i < first_id + num_peers; i++)
-	{
-		auto key = gen_key();
-		keys.insert({i, key});
-		peers->add({i, key});
-	}
-
-	return {peers, keys};
-}
-
-QuorumCert make_qc(std::shared_ptr<Peers> peers, const std::unordered_map<ID, Botan::ECDSA_PrivateKey> &keys,
-                   std::vector<ID> &signers, Hash hash = GENESIS.hash(), Round round = 1)
-{
-	std::vector<Signature> sigs;
-	for (ID i : signers)
-	{
-		auto key = keys.find(i);
-		REQUIRE(key != keys.end());
-
-		Crypto crypto(i, key->second, peers);
-
-		sigs.push_back(crypto.sign(hash));
-	}
-
-	return QuorumCert(hash, round, std::move(sigs));
-}
 
 TEST_CASE("Create and verify Signature", "[crypto]")
 {
@@ -94,10 +56,10 @@ TEST_CASE("Serialize/Deserialize QuorumCert", "[crypto,serialization]")
 	auto [peers, keys] = make_peers();
 	std::vector<ID> signers = {2, 3, 4};
 
-	QuorumCert qc = make_qc(peers, keys, signers);
+	QuorumCert qc = GENESIS_QC;
 
 	{
-		QuorumCert qc(Hash(), 10, std::vector<Signature>());
+		QuorumCert qc = make_qc(peers, keys, signers, GENESIS.hash(), 1);
 		cereal::BinaryOutputArchive oarchive(ss);
 		oarchive(qc);
 	}
@@ -107,5 +69,5 @@ TEST_CASE("Serialize/Deserialize QuorumCert", "[crypto,serialization]")
 		iarchive(qc);
 	}
 
-	REQUIRE(qc.round() == 10);
+	REQUIRE(qc.round() == 1);
 }

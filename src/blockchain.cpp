@@ -7,8 +7,8 @@
 namespace HotStuff
 {
 
-Block::Block(Hash parent, Round round, ID proposer, QuorumCert cert)
-    : m_parent(parent), m_round(round), m_proposer(proposer), m_cert(cert)
+Block::Block(Hash parent, Round round, ID proposer, QuorumCert cert, std::vector<uint8_t> payload)
+    : m_parent(parent), m_round(round), m_proposer(proposer), m_cert(cert), m_payload(payload)
 {
 }
 
@@ -49,9 +49,14 @@ Hash Block::hash() const
 	return hash;
 }
 
+std::vector<uint8_t> Block::payload() const
+{
+	return m_payload;
+}
+
 BlockChain::BlockChain()
 {
-	blocks.insert({GENESIS.hash(), GENESIS});
+	add(GENESIS);
 }
 
 std::optional<Block> BlockChain::get(Hash hash)

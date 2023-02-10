@@ -27,13 +27,13 @@ ID LeaderElection::get_leader(Round round)
 
 void Consensus::on_propose(Block block)
 {
-	if (auto result = m_crypto.verify(block.cert(), 3))
+	if (auto result = m_crypto->verify(block.cert(), 3))
 	{
 		std::cerr << "on_propose: Invalid quorum cert." << std::endl;
 		return;
 	}
 
-	if (block.proposer() != m_leader_election.get_leader(block.round()))
+	if (block.proposer() != m_leader_election->get_leader(block.round()))
 	{
 		std::cerr << "on_propose: Block was not proposed by expected leader." << std::endl;
 		return;
@@ -41,7 +41,7 @@ void Consensus::on_propose(Block block)
 
 	bool safe = false;
 
-	auto block_from_qc = m_blockchain.get(block.cert().block_hash());
+	auto block_from_qc = m_blockchain->get(block.cert().block_hash());
 	if (block_from_qc)
 	{
 		if (block_from_qc->round() > m_locked.round())
@@ -51,8 +51,8 @@ void Consensus::on_propose(Block block)
 	}
 	else
 	{
-		auto ancestor = m_blockchain.get(block.parent_hash());
-		for (; ancestor && ancestor->round() > m_locked.round(); ancestor = m_blockchain.get(ancestor->parent_hash()))
+		auto ancestor = m_blockchain->get(block.parent_hash());
+		for (; ancestor && ancestor->round() > m_locked.round(); ancestor = m_blockchain->get(ancestor->parent_hash()))
 			;
 
 		safe = ancestor && ancestor->hash() == m_locked.hash();
@@ -66,8 +66,8 @@ void Consensus::on_propose(Block block)
 
 	std::cerr << "on_propose: Block was accepted" << std::endl;
 
-	m_blockchain.add(block);
-	m_synchronizer.update(block.cert());
+	m_blockchain->add(block);
+	m_synchronizer->update(block.cert());
 
 	if (block.round() <= m_voted)
 	{
@@ -77,7 +77,7 @@ void Consensus::on_propose(Block block)
 
 	// TODO: create vote
 
-	auto signature = m_crypto.sign(block.hash());
+	auto signature = m_crypto->sign(block.hash());
 }
 
 void Consensus::on_vote()

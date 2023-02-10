@@ -40,10 +40,10 @@ class Consensus
 	Block m_executed;
 	Round m_voted;
 
-	BlockChain m_blockchain;
-	Crypto m_crypto;
-	LeaderElection m_leader_election;
-	Synchronizer m_synchronizer;
+	std::shared_ptr<BlockChain> m_blockchain;
+	std::shared_ptr<Crypto> m_crypto;
+	std::shared_ptr<LeaderElection> m_leader_election;
+	std::shared_ptr<Synchronizer> m_synchronizer;
 };
 
 } // namespace HotStuff
