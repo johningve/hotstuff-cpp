@@ -3,6 +3,7 @@ add_library(hotstuff STATIC
 	consensus.cpp
 	crypto.cpp
 	peers.cpp
+	network.cpp
 )
 
 target_include_directories(hotstuff PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})

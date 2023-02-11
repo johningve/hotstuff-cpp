@@ -23,11 +23,9 @@ class Signature
   public:
 	ID signer() const;
 
-	// This public constructor is needed because we want to serialize QuorumCert,
-	// which has a vector of signatures. Cereal uses vector::resize, which needs
-	// to be able to construct new objects. This should be removed.
-	// see: https://github.com/USCiLab/cereal/issues/704
-	[[deprecated]] Signature();
+	// Creates an empty signature.
+	// You probably shouldn't use this unless you need it for deserialization.
+	Signature();
 
   private:
 	friend class Crypto;

@@ -2,22 +2,12 @@
 
 #include "blockchain.h"
 #include "crypto.h"
+#include "network.h"
 #include "synchronizer.h"
 #include "types.h"
 
 namespace HotStuff
 {
-
-class Vote
-{
-  public:
-	Hash block_hash();
-	Signature signature();
-
-  private:
-	Hash m_hash;
-	Signature m_sig;
-};
 
 class LeaderElection
 {
@@ -33,7 +23,7 @@ class Consensus
 {
   public:
 	void on_propose(Block block);
-	void on_vote();
+	void on_vote(Vote vote);
 
   private:
 	Block m_locked;

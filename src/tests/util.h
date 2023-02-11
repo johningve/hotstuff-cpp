@@ -1,3 +1,5 @@
+#pragma once
+
 #include <botan/ecdsa.h>
 
 #include "../blockchain.h"

@@ -6,16 +6,6 @@
 namespace HotStuff
 {
 
-Hash Vote::block_hash()
-{
-	return m_hash;
-}
-
-Signature Vote::signature()
-{
-	return m_sig;
-}
-
 LeaderElection::LeaderElection(int num_replicas) : m_num_replicas(num_replicas)
 {
 }
@@ -80,7 +70,7 @@ void Consensus::on_propose(Block block)
 	auto signature = m_crypto->sign(block.hash());
 }
 
-void Consensus::on_vote()
+void Consensus::on_vote(Vote vote)
 {
 }
 
