@@ -68,10 +68,64 @@ class Network : std::enable_shared_from_this<Network>
 	void broadcast_proposal(Block proposal);
 
   private:
-	class Server;
-	class Sender;
-	class Receiver;
-	class Header;
+	class Header
+	{
+	  public:
+		enum class Type : uint8_t
+		{
+			VOTE,
+			PROPOSAL,
+			TIMEOUT
+		};
+
+		Type type;
+		uint32_t size;
+	};
+
+	class Sender : std::enable_shared_from_this<Network::Sender>
+	{
+	  public:
+		Sender(asio::ip::tcp::socket &&socket, std::shared_ptr<Network> network);
+		void send_message(Header header, std::vector<uint8_t> body);
+
+	  private:
+		std::shared_ptr<Network> m_network;
+		asio::ip::tcp::socket m_socket;
+
+		void send_body(std::vector<uint8_t> body);
+	};
+
+	class Receiver : public std::enable_shared_from_this<Network::Receiver>
+	{
+	  public:
+		Receiver(asio::ip::tcp::socket &&socket, std::shared_ptr<Network> network);
+		void start();
+
+	  private:
+		std::shared_ptr<Network> m_network;
+		asio::ip::tcp::socket m_socket;
+
+		// storage for reading header / body
+		Network::Header m_header;
+		std::optional<std::vector<uint8_t>> m_body;
+
+		void recv_header();
+		void recv_body(Header header);
+		void handle_recv_error(std::error_code error);
+	};
+
+	class Server : std::enable_shared_from_this<Network::Server>
+	{
+	  public:
+		Server(std::shared_ptr<Network> network, asio::io_context &io_context, uint16_t port);
+		void async_accept();
+
+	  private:
+		std::shared_ptr<Network> m_network;
+		asio::io_context &m_io_context;
+		asio::ip::tcp::acceptor m_acceptor;
+		std::optional<asio::ip::tcp::socket> socket;
+	};
 
 	friend class Receiver;
 
