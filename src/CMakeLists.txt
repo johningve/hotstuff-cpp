@@ -13,6 +13,7 @@ target_link_libraries(hotstuff PRIVATE ${BOTAN_LIBRARY} cereal::cereal fmt::fmt 
 add_executable(tests
 	blockchain_test.cpp
 	crypto_test.cpp
+	network_test.cpp
 	tests/util.cpp
 )
 

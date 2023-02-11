@@ -69,6 +69,11 @@ void Network::Sender::send_message(Network::Header header, std::vector<uint8_t> 
 	                    });
 }
 
+void Network::Sender::close()
+{
+	m_socket.close();
+}
+
 void Network::Sender::send_body(std::vector<uint8_t> body)
 {
 	m_socket.async_send(asio::buffer(body), [self = shared_from_this()](std::error_code error, size_t _) {
@@ -90,6 +95,11 @@ Network::Receiver::Receiver(asio::ip::tcp::socket &&socket, std::shared_ptr<Netw
 void Network::Receiver::start()
 {
 	recv_header();
+}
+
+void Network::Receiver::close()
+{
+	m_socket.close();
 }
 
 void Network::Receiver::recv_header()
@@ -147,25 +157,66 @@ Network::Server::Server(std::shared_ptr<Network> network, asio::io_context &io_c
 
 void Network::Server::async_accept()
 {
-	socket.emplace(m_io_context);
+	m_socket.emplace(m_io_context);
 
-	m_acceptor.async_accept(*socket, [self = shared_from_this()](std::error_code error) {
-		std::make_shared<Network::Receiver>(std::move(*self->socket), self->m_network)->start();
+	m_acceptor.async_accept(*m_socket, [self = shared_from_this()](std::error_code error) {
+		auto recv = std::make_shared<Network::Receiver>(std::move(*self->m_socket), self->m_network);
+		recv->start();
+		self->m_network->m_receivers.push_back(recv);
 		self->async_accept();
 	});
+}
+
+uint16_t Network::Server::port()
+{
+	return m_acceptor.local_endpoint().port();
+}
+
+void Network::Server::close()
+{
+	m_acceptor.close();
 }
 
 Network::Network(asio::io_context &io_context) : m_io_context(io_context), m_resolver(io_context)
 {
 }
 
-void Network::connect(ID id, std::string address)
+void Network::serve(uint16_t port)
+{
+	m_server.emplace(Network::Server(shared_from_this(), m_io_context, port));
+}
+
+void Network::connect_to(ID id, std::string address)
 {
 	asio::ip::tcp::socket socket(m_io_context);
 	auto endpoint_iter = m_resolver.resolve(address);
 	asio::async_connect(socket, endpoint_iter, [&, self = shared_from_this()](std::error_code error, auto _) {
-		self->m_senders.insert({id, Sender(std::move(socket), self)});
+		self->m_senders.insert({id, std::make_shared<Sender>(std::move(socket), self)});
 	});
+}
+
+uint16_t Network::server_port()
+{
+	return m_server->port();
+}
+
+void Network::close()
+{
+	for (auto [_, sender] : m_senders)
+	{
+		sender->close();
+	}
+
+	for (auto receiver : m_receivers)
+	{
+		receiver->close();
+	}
+
+	m_server->close();
+}
+
+void Network::handle_message(Header header, std::vector<uint8_t> body)
+{
 }
 
 } // namespace HotStuff
