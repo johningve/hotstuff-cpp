@@ -3,6 +3,7 @@
 #include <asio/io_context.hpp>
 #include <asio/ip/tcp.hpp>
 #include <cereal/access.hpp>
+#include <functional>
 #include <unordered_map>
 
 #include "blockchain.h"
@@ -62,15 +63,19 @@ class Network : public std::enable_shared_from_this<Network>
 {
   public:
 	Network(asio::io_context &io_context);
-	void serve(uint16_t port = 0);
+	void serve(uint16_t port = 0, std::function<void()> callback = {});
 
-	void connect_to(ID id, std::string address);
+	void connect_to(ID id, std::string address, std::function<void()> callback = {});
 	uint16_t server_port();
 	void close();
 
 	void send_vote(ID recipient, Vote vote);
 	void send_timeout(ID recipient, Timeout timeout);
 	void broadcast_proposal(Block proposal);
+
+	void on_vote(std::function<void(Vote)> callback);
+	void on_timeout(std::function<void(Timeout)> callback);
+	void on_propose(std::function<void(Block)> callback);
 
   private:
 	class Header
@@ -82,6 +87,9 @@ class Network : public std::enable_shared_from_this<Network>
 			PROPOSAL,
 			TIMEOUT
 		};
+
+		Header();
+		Header(Type type, uint32_t size);
 
 		Type type;
 		uint32_t size;
@@ -125,7 +133,7 @@ class Network : public std::enable_shared_from_this<Network>
 	{
 	  public:
 		Server(std::shared_ptr<Network> network, asio::io_context &io_context, uint16_t port);
-		void async_accept();
+		void async_accept(std::function<void()> callback = {});
 		uint16_t port();
 		void close();
 
@@ -140,10 +148,17 @@ class Network : public std::enable_shared_from_this<Network>
 
 	asio::io_context &m_io_context;
 	asio::ip::tcp::resolver m_resolver;
-	std::optional<Server> m_server;
+	std::shared_ptr<Server> m_server;
 
 	std::unordered_map<ID, std::shared_ptr<Sender>> m_senders;
 	std::vector<std::shared_ptr<Receiver>> m_receivers;
+
+	// callbacks
+	std::function<void(Vote)> m_cb_vote;
+	std::function<void(Timeout)> m_cb_timeout;
+	std::function<void(Block)> m_cb_proposal;
+
+	template <typename Message, Header::Type Type> void send_message(ID recipient, Message message);
 
 	void handle_message(Header header, std::vector<uint8_t> body);
 };
