@@ -1,2 +1,2 @@
 # hotstuff-cpp
-C++ Implementation of HotStuff
+C++ Implementation of HotStuff (Work in progress)

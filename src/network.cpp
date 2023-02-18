@@ -174,9 +174,11 @@ void Network::Server::async_accept(std::function<void()> callback)
 		    auto recv = std::make_shared<Network::Receiver>(std::move(*self->m_socket), self->m_network);
 		    recv->start();
 		    self->m_network->m_receivers.push_back(recv);
-		    callback();
 		    self->async_accept();
 	    });
+
+	if (callback)
+		callback();
 }
 
 uint16_t Network::Server::port()
@@ -196,13 +198,13 @@ Network::Network(asio::io_context &io_context) : m_io_context(io_context), m_res
 void Network::serve(uint16_t port, std::function<void()> callback)
 {
 	m_server = std::make_shared<Server>(shared_from_this(), m_io_context, port);
-	m_server->async_accept(std::move(callback));
+	m_server->async_accept(callback);
 }
 
-void Network::connect_to(ID id, std::string address, std::function<void()> callback)
+void Network::connect_to(ID id, std::string host, std::string port, std::function<void()> callback)
 {
 	asio::ip::tcp::socket socket(m_io_context);
-	auto endpoint_iter = m_resolver.resolve(address);
+	auto endpoint_iter = m_resolver.resolve(host, port);
 	asio::async_connect(socket, endpoint_iter,
 	                    [&, self = shared_from_this(), callback = std::move(callback)](std::error_code error, auto _) {
 		                    self->m_senders.insert({id, std::make_shared<Sender>(std::move(socket), self)});

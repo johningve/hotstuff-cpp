@@ -35,7 +35,7 @@ TEST_CASE("Send vote", "[network]")
 	auto net2 = std::make_shared<HotStuff::Network>(io_context);
 
 	net1->serve(0, [&]() {
-		net2->connect_to(1, fmt::format("localhost:{}", net1->server_port()), [&]() { net2->send_vote(1, vote); });
+		net2->connect_to(1, "localhost", fmt::format("{}", net1->server_port()), [&]() { net2->send_vote(1, vote); });
 	});
 
 	// net2->serve();

@@ -65,7 +65,7 @@ class Network : public std::enable_shared_from_this<Network>
 	Network(asio::io_context &io_context);
 	void serve(uint16_t port = 0, std::function<void()> callback = {});
 
-	void connect_to(ID id, std::string address, std::function<void()> callback = {});
+	void connect_to(ID id, std::string host, std::string port, std::function<void()> callback = {});
 	uint16_t server_port();
 	void close();
 
